@@ -85,6 +85,12 @@
     )
 )
 
+(define-private (validate-principal (address principal))
+    (match (principal-destruct? address)
+        success true
+        error false)
+)
+
 (define-private (calculate-random-hash (input-value uint))
     (let (
         (combined-input (concat 
@@ -129,20 +135,16 @@
 (define-public (block-address (target-address principal))
     (begin
         (try! (verify-owner-access))
-        (match (principal-destruct? target-address)
-            success (ok (map-set blocked-addresses target-address true))
-            error ERROR_INVALID_PRINCIPAL_ADDRESS
-        )
+        (asserts! (validate-principal target-address) ERROR_INVALID_PRINCIPAL_ADDRESS)
+        (ok (map-set blocked-addresses target-address true))
     )
 )
 
 (define-public (unblock-address (target-address principal))
     (begin
         (try! (verify-owner-access))
-        (match (principal-destruct? target-address)
-            success (ok (map-delete blocked-addresses target-address))
-            error ERROR_INVALID_PRINCIPAL_ADDRESS
-        )
+        (asserts! (validate-principal target-address) ERROR_INVALID_PRINCIPAL_ADDRESS)
+        (ok (map-delete blocked-addresses target-address))
     )
 )
 
